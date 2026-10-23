@@ -1,352 +1,235 @@
 # 🛡️ CloudGuard AWS
 
-### Cloud Security. Clear Findings. Safer Infrastructure.
+### Lightweight, Serverless Cloud Security Posture Scanner
 
-**A serverless AWS security posture scanner designed to identify cloud misconfigurations, explain risks, and guide safer infrastructure decisions.**
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+[![Node.js: >=20.x](https://img.shields.io/badge/Node.js-%3E%3D20.x-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![AWS SDK: v3](https://img.shields.io/badge/AWS_SDK-JavaScript_v3-FF9900?style=flat-square&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/sdk-for-javascript/)
+[![IaC: Terraform](https://img.shields.io/badge/IaC-Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white)](https://www.terraform.io/)
+[![CI/CD: GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)](https://github.com/features/actions)
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Cloud-AWS-orange?style=for-the-badge&logo=amazonaws&logoColor=white" alt="AWS"/>
-  <img src="https://img.shields.io/badge/Infrastructure-Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white" alt="Terraform"/>
-  <img src="https://img.shields.io/badge/Runtime-Node.js-43853D?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js"/>
-  <img src="https://img.shields.io/badge/Automation-GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" alt="GitHub Actions"/>
-</p>
-
-<p align="center">
-  <b>DETECT</b> &nbsp; ◆ &nbsp; <b>ANALYZE</b> &nbsp; ◆ &nbsp; <b>PRIORITIZE</b> &nbsp; ◆ &nbsp; <b>REMEDIATE</b>
-</p>
-
-<p align="center">
-  <a href="https://github.com/subhajitajodhya-dotcom/cloudguard-aws">Repository</a>
-  &nbsp; • &nbsp;
-  <a href="https://github.com/subhajitajodhya-dotcom/cloudguard-aws/issues">Issues</a>
-  &nbsp; • &nbsp;
-  <a href="https://github.com/subhajitajodhya-dotcom/cloudguard-aws/commits/main/">Development History</a>
-</p>
+**CloudGuard AWS** is an automated, serverless security scanning engine designed to audit AWS infrastructure against security best practices, flag risky misconfigurations, and deliver structured, evidence-backed remediation guidance without disrupting running services.
 
 ---
 
-> **🚧 Development status: Planning / Early Development**
->
-> CloudGuard is currently in its planning stage. The architecture and features below describe the intended implementation, not a deployed or fully functional product.
+> [!NOTE]
+> **Active Development Notice:** CloudGuard is currently undergoing active MVP development. The roadmap, core rule schemas, and architectural designs below reflect the implementation specification for Phase 1.
 
-## 🔐 The Mission
+---
 
-Cloud infrastructure is powerful—but a single misconfiguration can expose sensitive data, weaken access controls, or reduce visibility into suspicious activity.
+## ⚡ Key Highlights
 
-CloudGuard AWS aims to make these issues easier to identify and understand by scanning selected AWS configurations and turning potential risks into structured, actionable security findings.
+* **Read-Only Non-Invasive Auditing:** Scans infrastructure using least-privilege IAM permissions without making unsolicited state changes.
+* **Modular Rule Engine:** Extensible security rules evaluated independently against AWS resource configurations.
+* **Clear Findings with Remediation Context:** Every finding maps directly to a severity rating, resource identifier, risk explanation, and step-by-step fix.
+* **Asynchronous Serverless Pipeline:** Decoupled scan initiation and execution powered by AWS Lambda, SQS, and DynamoDB.
+* **100% Infrastructure as Code:** Fully repeatable AWS deployment managed cleanly via Terraform.
 
-**The vision:** a lightweight, developer-friendly cloud security tool that helps engineers understand what is wrong, why it matters, and how to fix it safely.
+---
 
-## ✨ What CloudGuard Aims to Deliver
+## 🔍 Security Scope & Detection Rules
 
-<table>
-  <tr>
-    <td width="50%">
-      <h3>🔍 Security Detection</h3>
-      Identify selected AWS configuration risks through rule-based security checks.
-    </td>
-    <td width="50%">
-      <h3>🎯 Risk Prioritization</h3>
-      Organize findings by severity and provide evidence for investigation.
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>🛠️ Actionable Guidance</h3>
-      Recommend practical remediation steps without automatically changing resources.
-    </td>
-    <td width="50%">
-      <h3>⚙️ Infrastructure Automation</h3>
-      Build reproducible cloud infrastructure with Terraform and automated validation.
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>📊 Centralized Findings</h3>
-      Store scan results and make them available for future dashboard visualization.
-    </td>
-    <td width="50%">
-      <h3>🔐 Security by Design</h3>
-      Prioritize least-privilege permissions, secure credentials, and controlled access.
-    </td>
-  </tr>
-</table>
+CloudGuard targets the most common cloud security misconfigurations that expose organizations to data leaks and unauthorized access:
 
-## 🚨 Security Problems in Scope
+| Rule ID | Service Area | Target Misconfiguration | Risk Level |
+|---|---|---|---|
+| `SEC-S3-001` | **Amazon S3** | S3 bucket allows public read/write access | `CRITICAL` |
+| `SEC-S3-002` | **Amazon S3** | Bucket does not enforce HTTPS (`aws:SecureTransport`) | `HIGH` |
+| `SEC-NET-001` | **EC2 / VPC** | Security Group allows unrestricted inbound SSH (`0.0.0.0/0:22`) | `HIGH` |
+| `SEC-NET-002` | **EC2 / VPC** | Security Group allows open inbound RDP (`0.0.0.0/0:3389`) | `HIGH` |
+| `SEC-IAM-001` | **AWS IAM** | User or role has wildcard administrative permissions (`*:*`) | `CRITICAL` |
+| `SEC-LOG-001` | **CloudTrail** | Multi-region CloudTrail audit logging is disabled | `MEDIUM` |
 
-| Security area | Example risk | Intended outcome |
-|---|---|---|
-| Amazon S3 | Unintended public access | Flag potentially exposed storage |
-| EC2 security groups | SSH or other sensitive ports open to the internet | Identify risky inbound rules |
-| AWS IAM | Excessively permissive policies | Highlight permissions requiring review |
-| AWS CloudTrail | Missing or insufficient audit logging | Identify gaps in activity visibility |
-| Data in transit | Bucket policies that fail to enforce HTTPS | Recommend stronger transport protections |
+---
 
-*These are planned checks. Actual coverage will be documented as each rule is implemented and tested.*
+## 🖥️ Sample CLI Output & Finding Schema
 
-## 🏗️ Proposed Architecture
+When a scan is triggered locally or through the API, CloudGuard outputs structured findings formatted for easy consumption by engineers or automated CI/CD security gates:
 
-```mermaid
-flowchart TB
-    USER(["👤 Cloud Engineer"])
-    UI["Security Dashboard<br/>S3 + CloudFront"]
-    AUTH["Amazon Cognito<br/>Future Authentication"]
-    API["Amazon API Gateway"]
-    HANDLER["AWS Lambda<br/>API Handler"]
-    QUEUE["Amazon SQS<br/>Scan Jobs"]
-    SCANNER["AWS Lambda<br/>Security Rule Engine"]
-    AWS["AWS Resources<br/>S3 · IAM · EC2 · VPC"]
-    DB[("Amazon DynamoDB<br/>Findings & History")]
-    SCHEDULE["Amazon EventBridge<br/>Future Scheduled Scans"]
-    MONITOR["Amazon CloudWatch"]
-    ALERTS["Amazon SNS<br/>Future Notifications"]
+```text
+$ cloudguard scan --profile audit --region us-east-1
 
-    USER --> UI
-    UI --> API
-    AUTH -. "Future access control" .-> API
-    API --> HANDLER
-    HANDLER --> QUEUE
-    QUEUE --> SCANNER
-    SCANNER --> AWS
-    SCANNER --> DB
-    HANDLER --> DB
-    SCHEDULE -. "Future automation" .-> QUEUE
-    SCANNER -.-> MONITOR
-    HANDLER -.-> MONITOR
-    SCANNER -. "Future alerts" .-> ALERTS
+[+] Initializing CloudGuard Scanner v0.1.0...
+[+] Authenticated to AWS Account: 123456789012 (Region: us-east-1)
+[+] Running 6 checks across S3, IAM, and EC2...
 
-    classDef entry fill:#102A43,stroke:#38BDF8,color:#FFFFFF
-    classDef compute fill:#153E35,stroke:#34D399,color:#FFFFFF
-    classDef storage fill:#3B2F63,stroke:#A78BFA,color:#FFFFFF
-    classDef future fill:#303744,stroke:#9CA3AF,color:#FFFFFF
+[!] [HIGH] SEC-NET-001 - Unrestricted SSH access found in Security Group
+    Resource : sg-0498a12bc8f4 (web-dmz-sg)
+    Evidence : Inbound rule allows 0.0.0.0/0 on TCP port 22
+    Remedy   : Restrict CIDR block to authorized corporate IPs or use AWS Systems Manager.
 
-    class USER,UI,API entry
-    class HANDLER,SCANNER,QUEUE compute
-    class DB,MONITOR storage
-    class AUTH,SCHEDULE,ALERTS future
+[!] [CRITICAL] SEC-S3-001 - Public bucket access detected
+    Resource : arn:aws:s3:::customer-export-data
+    Evidence : PublicAccessBlockConfiguration allows public policies
+    Remedy   : Enable 'Block Public Access' and enforce strict bucket ACLs.
+
+[-] Scan complete: 2 findings identified (1 Critical, 1 High, 0 Medium, 0 Low).
+[-] Results written to DynamoDB: cloudguard-findings-table
 ```
 
-### Architecture principles
-
-- **Serverless first:** use managed AWS services where appropriate.
-- **Least privilege:** isolate scanning, application and deployment permissions.
-- **Infrastructure as Code:** define resources using Terraform.
-- **Asynchronous processing:** introduce a queue when scan execution requires it.
-- **Observable execution:** capture useful operational logs and errors.
-- **Human-approved remediation:** identify and explain risks before changing infrastructure.
-
-This diagram represents the target design. Components will be marked as implemented only after they exist and have been verified.
-
-## 🧰 Technology Stack
-
-<p>
-  <img src="https://img.shields.io/badge/Amazon_AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=white" alt="Amazon AWS"/>
-  <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js"/>
-  <img src="https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white" alt="Terraform"/>
-  <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker"/>
-  <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white" alt="GitHub Actions"/>
-</p>
-
-| Layer | Planned technology |
-|---|---|
-| Application language | JavaScript / Node.js |
-| AWS integration | AWS SDK for JavaScript v3 |
-| Compute | AWS Lambda |
-| API | Amazon API Gateway |
-| Findings storage | Amazon DynamoDB |
-| Infrastructure | Terraform |
-| CI/CD | GitHub Actions |
-| Local development | Docker |
-| Monitoring | Amazon CloudWatch |
-| Future dashboard | Amazon S3 + CloudFront |
-| Future authentication | Amazon Cognito |
-
-**Language choice:** CloudGuard is planned as a Node.js project, without Python.
-
-## 🔄 How a Scan Will Work
-
-1. **Initiate** — an authorized user requests a security scan.
-2. **Inspect** — the scanner queries supported AWS configuration APIs.
-3. **Evaluate** — security rules compare the observed configuration against defined criteria.
-4. **Classify** — potential issues are assigned a severity and rule identifier.
-5. **Record** — findings are stored with evidence and scan metadata.
-6. **Recommend** — the system provides a suggested remediation.
-7. **Verify** — an engineer reviews the fix and runs another scan.
-
-### Example security finding
-
+### JSON Finding Schema
 ```json
 {
-  "ruleId": "NET-001",
+  "findingId": "cg-20261023-8fbc91",
+  "ruleId": "SEC-NET-001",
   "severity": "HIGH",
-  "title": "SSH exposed to the internet",
+  "title": "Unrestricted SSH access found in Security Group",
   "resourceType": "AWS::EC2::SecurityGroup",
+  "resourceId": "sg-0498a12bc8f4",
   "status": "OPEN",
+  "timestamp": "2026-10-23T12:00:00Z",
   "evidence": {
     "protocol": "tcp",
     "port": 22,
     "source": "0.0.0.0/0"
   },
-  "recommendation": "Restrict SSH access to approved source IPs."
+  "remediation": {
+    "summary": "Restrict SSH access to approved corporate IP ranges or switch to SSM Session Manager.",
+    "documentation": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/authorizing-access-to-an-instance.html"
+  }
 }
 ```
 
-*Illustrative output only—not a finding from a completed scan.*
+---
 
-## 🛡️ Security Principles
+## 🧩 Architecture
 
-| Principle | Implementation goal |
-|---|---|
-| Least privilege | Grant each identity only the permissions required |
-| Read-only scanning | Avoid changing scanned AWS resources |
-| Credential protection | Never commit credentials or secrets |
-| Secure CI/CD | Prefer GitHub Actions OIDC for AWS federation |
-| API authorization | Protect sensitive operations with appropriate access controls |
-| Safe remediation | Require review before applying infrastructure changes |
-| Auditability | Record useful events without exposing sensitive information |
+CloudGuard is built as a serverless event-driven service to maintain zero idle costs and scale on-demand.
 
-## 🗺️ Development Roadmap
+```mermaid
+flowchart TB
+    DEV(["👤 Cloud Engineer / CI"])
+    API["Amazon API Gateway<br/>(REST API)"]
+    HANDLER["AWS Lambda<br/>(API & Trigger Handler)"]
+    SQS["Amazon SQS<br/>(Scan Job Queue)"]
+    ENGINE["AWS Lambda<br/>(Security Rule Engine)"]
+    TARGET["AWS Environment<br/>(S3 · IAM · EC2 · VPC)"]
+    DDB[("Amazon DynamoDB<br/>(Findings History)")]
+    CW["Amazon CloudWatch<br/>(Logs & Metrics)"]
 
-<details>
-  <summary><b>Phase 1 — Security Scanner MVP</b></summary>
-
-  - [ ] Create the Node.js application structure.
-  - [ ] Define the security finding schema.
-  - [ ] Build sample AWS configuration fixtures.
-  - [ ] Implement the first security rule.
-  - [ ] Add unit tests for safe and unsafe configurations.
-
-  **Goal:** a tested local scanner.
-</details>
-
-<details>
-  <summary><b>Phase 2 — AWS Integration</b></summary>
-
-  - [ ] Integrate the AWS SDK for JavaScript.
-  - [ ] Implement initial S3 and security-group checks.
-  - [ ] Configure restricted scanning permissions.
-  - [ ] Handle API errors and insufficient permissions.
-  - [ ] Validate findings against a controlled AWS environment.
-
-  **Goal:** a scanner that evaluates real AWS configurations.
-</details>
-
-<details>
-  <summary><b>Phase 3 — Serverless Infrastructure</b></summary>
-
-  - [ ] Define AWS resources with Terraform.
-  - [ ] Deploy Lambda and API Gateway.
-  - [ ] Store findings in DynamoDB.
-  - [ ] Add CloudWatch logging and error handling.
-  - [ ] Document deployment and cleanup.
-
-  **Goal:** a working, reproducible AWS deployment.
-</details>
-
-<details>
-  <summary><b>Phase 4 — CI/CD and Dashboard</b></summary>
-
-  - [ ] Add automated unit tests.
-  - [ ] Validate Terraform through GitHub Actions.
-  - [ ] Add infrastructure and dependency security checks.
-  - [ ] Build a dashboard for security findings.
-  - [ ] Add filtering and scan history.
-
-  **Goal:** a demonstrable end-to-end application.
-</details>
-
-<details>
-  <summary><b>Phase 5 — Advanced Capabilities</b></summary>
-
-  - [ ] Add Cognito authentication and authorization.
-  - [ ] Add scheduled scanning.
-  - [ ] Add asynchronous scan processing.
-  - [ ] Configure optional security notifications.
-  - [ ] Evaluate real-time updates and additional rules.
-
-  **Goal:** a more complete security assessment platform.
-</details>
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Git
-- Node.js LTS and npm
-- AWS CLI
-- Terraform
-- Docker
-- An AWS account for live scanning and deployment
-
-### Clone the repository
-
-```bash
-git clone https://github.com/subhajitajodhya-dotcom/cloudguard-aws.git
-cd cloudguard-aws
+    DEV -->|1. Trigger scan| API
+    API -->|2. Route request| HANDLER
+    HANDLER -->|3. Push scan job| SQS
+    SQS -->|4. Consume job| ENGINE
+    ENGINE -->|5. Read-only config check| TARGET
+    ENGINE -->|6. Store findings| DDB
+    ENGINE -.->|7. Emit logs| CW
+    HANDLER -.->|7. Emit logs| CW
 ```
 
-### Verify your tools
-
-```bash
-node --version
-npm --version
-aws --version
-terraform version
-docker --version
-```
-
-The application-specific installation, test and deployment commands will be documented after the corresponding components have been implemented and verified.
-
-**Safety note:** use a dedicated, restricted AWS identity. Review Terraform plans before applying them, configure billing alerts, and clean up test resources when finished.
-
-## 🧪 Testing and Quality
-
-CloudGuard will prioritize evidence-based development over unverified feature claims.
-
-- Unit tests for individual security rules.
-- Integration tests for AWS API interactions.
-- API tests for input validation and authorization.
-- Terraform formatting and validation.
-- Automated checks through GitHub Actions.
-- End-to-end verification in a controlled AWS environment.
-
-Test coverage, security-check counts and deployment status will be published only when supported by actual results.
-
-## 🎯 Project Goals
-
-CloudGuard is intended to demonstrate practical skills in:
-
-- AWS cloud engineering and serverless architecture.
-- Security posture assessment and IAM permissions.
-- Terraform and Infrastructure as Code.
-- Node.js application development.
-- CI/CD automation and testing.
-- Monitoring, troubleshooting and technical documentation.
-
-## 🔗 Related Project
-
-**AWS Cloud Cost Optimization**
-
-[Explore the companion project →](https://github.com/subhajitajodhya-dotcom/cloud-cost-optimization-aws)
-
-CloudGuard focuses on security configuration, while the companion project focuses on cloud cost visibility and optimization. Together, they are intended to demonstrate two complementary aspects of cloud engineering.
-
-## 👨‍💻 About the Developer
-
-**Subhajit Dey** · Computer Science Student · Aspiring Cloud Engineer
-
-Building hands-on projects to develop practical experience in AWS, infrastructure automation, security and DevOps.
-
-[GitHub Profile](https://github.com/subhajitajodhya-dotcom) · [CloudGuard Repository](https://github.com/subhajitajodhya-dotcom/cloudguard-aws)
-
-## 📜 License
-
-A license has not yet been selected. Licensing information will be added when the license file is included in the repository.
+### Why Node.js & AWS SDK v3?
+* **Modular Imports:** AWS SDK v3 allows importing discrete clients (e.g., `@aws-sdk/client-s3`) rather than the entire monolithic SDK, drastically reducing Lambda deployment package sizes.
+* **Fast Lambda Cold Starts:** Minimal runtime overhead ensures low cold-start latency compared to heavy containers.
+* **Concurrent Asynchronous Checks:** Native asynchronous execution handles multi-region and multi-service AWS API calls concurrently using `Promise.allSettled`.
 
 ---
 
-<p align="center">
-  <b>Build securely. Automate thoughtfully. Improve continuously.</b>
-  <br/>
-  <sub>CloudGuard AWS — A cloud security engineering project in development.</sub>
-</p>
+## 📁 Repository Structure
+
+```text
+cloudguard-aws/
+├── .github/
+│   └── workflows/
+│       ├── test.yml            # Automated unit testing & linting
+│       └── terraform.yml       # Terraform validation & security checks
+├── src/
+│   ├── config/                 # AWS SDK clients and environment configuration
+│   ├── rules/                  # Modular security detection rules
+│   │   ├── s3/                 # S3 public access and encryption checks
+│   │   ├── network/            # Security Group & open port checks
+│   │   └── iam/                # IAM wildcard & policy checks
+│   ├── engine/                 # Core scanner execution engine
+│   ├── handlers/               # AWS Lambda API & SQS entrypoints
+│   └── utils/                  # Formatting, logging, and error handling
+├── terraform/
+│   ├── main.tf                 # Lambda, API Gateway, SQS, and DynamoDB
+│   ├── iam.tf                  # Principle of least privilege IAM roles
+│   └── variables.tf            # Deployment inputs
+├── tests/
+│   ├── unit/                   # Rule logic tests using mock AWS responses
+│   └── fixtures/               # Sample resource configurations
+├── package.json
+└── README.md
+```
+
+---
+
+## 🛠️ Security Rule Definition Pattern
+
+Rules are authored as clean, single-responsibility functions that accept an AWS resource configuration and return either a structured finding or null:
+
+```javascript
+// Example: src/rules/network/unrestrictedSsh.js
+export const unrestrictedSshRule = {
+  id: "SEC-NET-001",
+  severity: "HIGH",
+  description: "Check if security group allows inbound SSH from 0.0.0.0/0",
+  
+  evaluate(securityGroup) {
+    const isExposed = securityGroup.IpPermissions?.some(rule => 
+      rule.FromPort <= 22 && 
+      rule.ToPort >= 22 && 
+      rule.IpRanges?.some(range => range.CidrIp === "0.0.0.0/0")
+    );
+
+    if (!isExposed) return null;
+
+    return {
+      ruleId: this.id,
+      severity: this.severity,
+      resourceId: securityGroup.GroupId,
+      status: "OPEN",
+      evidence: { port: 22, source: "0.0.0.0/0" },
+      recommendation: "Restrict inbound port 22 access to internal CIDRs."
+    };
+  }
+};
+```
+
+---
+
+## 🚀 Getting Started (Local Development)
+
+### Prerequisites
+* [Node.js](https://nodejs.org/) (version 20.x or newer)
+* [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) with configured read-only test credentials
+* [Terraform](https://www.terraform.io/) (>= 1.5.0)
+
+### Setup
+```bash
+# 1. Clone the repository
+git clone https://github.com/subhajitajodhya-dotcom/cloudguard-aws.git
+cd cloudguard-aws
+
+# 2. Install dependencies (once Phase 1 package is published)
+npm install
+
+# 3. Run unit tests against rule fixtures
+npm test
+```
+
+---
+
+## 🗺️ Roadmap
+
+- [x] **Phase 0:** Requirements gathering, architecture specification, and finding schema design.
+- [ ] **Phase 1 (Current):** Standalone Node.js rule engine, sample fixtures, and unit test suite.
+- [ ] **Phase 2:** AWS SDK integration with S3, Security Group, and IAM policy audit checks.
+- [ ] **Phase 3:** Terraform infrastructure deployment (Lambda, SQS, DynamoDB, API Gateway).
+- [ ] **Phase 4:** GitHub Actions CI/CD pipeline with automated terraform formatting and security scanning (`tfsec`/`trivy`).
+- [ ] **Phase 5:** Amazon Cognito authentication and React-based audit dashboard on S3 + CloudFront.
+
+---
+
+## 👤 Author
+
+**Subhajit Dey**
+* Aspiring Cloud & DevOps Engineer
+* GitHub: [@subhajitajodhya-dotcom](https://github.com/subhajitajodhya-dotcom)
+* Companion Project: [Cloud Cost Optimization on AWS](https://github.com/subhajitajodhya-dotcom/cloud-cost-optimization-aws)
+
+---
+
+## 📜 License
+
+This project is licensed under the [MIT License](LICENSE).
