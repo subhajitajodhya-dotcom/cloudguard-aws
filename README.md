@@ -1,250 +1,492 @@
 
 
-<div align="center">
+# 🛡️ CloudGuard AWS
+### Serverless Cloud Security Posture Scanner
 
-# 🛡️ CloudGuard
+**Detect AWS security misconfigurations. Understand the risk. Review recommended fixes.**
 
-### Serverless AWS Security Posture Scanner
+CloudGuard AWS is a portfolio project designed to assess common AWS security misconfigurations through a serverless architecture. The goal is to turn cloud configuration checks into clear, actionable findings that developers and cloud engineers can investigate and resolve safely.
 
-Find security misconfigurations in your AWS account, see them live on a dashboard, and fix them with approval.
+> 🚧 **Project Status: Planning / Early Development**
+>
+> The repository currently contains the project plan and architecture. Features described below are proposed capabilities unless explicitly marked as implemented. The roadmap will be updated as working components are built and tested.
 
-![Status](https://img.shields.io/badge/status-in%20progress-orange?style=for-the-badge)
-![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)
-![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
-
-</div>
+[Repository](https://github.com/subhajitajodhya-dotcom/cloudguard-aws) · [Report an Issue](https://github.com/subhajitajodhya-dotcom/cloudguard-aws/issues) · [Related Project: AWS Cost Optimization](https://github.com/subhajitajodhya-dotcom/cloud-cost-optimization-aws)
 
 ---
 
-> 🚧 **Project status:** CloudGuard is being built step by step. This README describes the design and shows what is done and what is next. The checklist in [Roadmap](#-roadmap) is updated as each part is finished.
+## 📑 Table of Contents
 
-## 📖 Table of Contents
-
-- [Why CloudGuard](#-why-cloudguard)
-- [Features](#-features)
-- [Architecture](#-architecture)
-- [Tech Stack](#-tech-stack)
+- [Overview](#-overview)
+- [The Problem](#-the-problem)
+- [Project Goals](#-project-goals)
+- [Planned Features](#-planned-features)
 - [Security Checks](#-security-checks)
-- [API Design](#-api-design)
-- [Authentication and Roles](#-authentication-and-roles)
-- [Planned Folder Structure](#-planned-folder-structure)
-- [Roadmap](#-roadmap)
+- [Architecture](#-architecture)
+- [Technology Stack](#-technology-stack)
+- [How It Will Work](#-how-it-will-work)
+- [Security by Design](#-security-by-design)
+- [Project Structure](#-project-structure)
+- [Development Roadmap](#-development-roadmap)
 - [Getting Started](#-getting-started)
+- [Testing Strategy](#-testing-strategy)
+- [Cost and Cleanup](#-cost-and-cleanup)
+- [Limitations](#-limitations)
 - [Related Project](#-related-project)
-- [Author](#-author)
+- [About the Developer](#-about-the-developer)
 
 ---
 
-## 🎯 Why CloudGuard
+## 🎯 Overview
 
-Most cloud security problems are not clever attacks. They are simple misconfigurations: a public storage bucket, a firewall open to the world, or an access key nobody rotated.
+CloudGuard AWS aims to provide a focused, serverless approach to identifying common cloud security configuration issues.
 
-Recent industry research on AWS accounts found weak IAM controls, missing public access protection on S3 and unrotated access keys to be very common ([2026 Cloud Security Index](https://cloudsecurityalliance.org/blog/2026/09/04/2026-cloud-security-index-how-risk-differs-across-aws-azure-and-google-cloud-csa)).
+Instead of simply listing AWS resources, the scanner will evaluate selected configurations against explicit security rules and generate structured findings containing the affected resource, severity, evidence and recommended remediation.
 
-CloudGuard checks for these problems automatically, shows the results in real time, and keeps a history so you can see whether your security is improving.
+### Core objectives
 
----
+- 🔍 **Detect:** Identify selected AWS security misconfigurations.
+- 📋 **Explain:** Describe what was detected and why it matters.
+- 🎯 **Prioritize:** Classify findings by severity.
+- 🛠️ **Recommend:** Provide actionable remediation guidance.
+- 📊 **Monitor:** Present findings through an API and dashboard.
+- 🔐 **Protect:** Use read-only scanning permissions and least-privilege access wherever possible.
+- ⚙️ **Automate:** Manage infrastructure through Terraform and validate changes through CI/CD.
 
-## ✨ Features
-
-- 🔍 **Automated scans** of an AWS account on a schedule or on demand
-- 🔐 **Login with roles**: `admin` can approve fixes, `viewer` can only read
-- 🌐 **REST API** for findings, scans and fixes
-- ⚡ **WebSocket API** that pushes scan progress and new findings to the dashboard live
-- 📊 **Dashboard** with a security score and findings by severity
-- 🔔 **Email alerts** for high-severity findings
-- 🏗️ **Everything created with Terraform**, with separate `dev` and `prod` environments
-- 🚀 **CI/CD** with GitHub Actions: test, scan, plan and deploy
-- 🐳 **Docker** for local development and CI builds
-- 🧩 **Rule plug-in design**: a new security check is one small file
-- 🏢 **Multi-account scanning** by assuming a read-only role *(planned)*
+The initial release will focus on a small set of reliable security checks before expanding into authentication, scheduled scans and dashboard enhancements.
 
 ---
 
-## 🏛️ Architecture
+## 🚨 The Problem
+
+Cloud environments can become vulnerable through ordinary configuration mistakes, including:
+
+- Publicly accessible storage resources.
+- Security groups that expose sensitive ports to the internet.
+- Overly permissive IAM policies.
+- Missing or insufficient audit logging.
+- Weak access-key management practices.
+
+Finding these issues is only part of the challenge. Engineers also need to understand their impact, prioritize fixes and verify that the configuration has improved.
+
+**CloudGuard aims to connect detection with understandable remediation guidance in one focused workflow.**
+
+---
+
+## ✨ Planned Features
+
+| Feature | Purpose | Status |
+|---|---|---|
+| Rule-based security scanner | Evaluate selected AWS configurations | Planned |
+| Structured security findings | Store evidence, severity and remediation | Planned |
+| AWS Lambda backend | Execute serverless application logic | Planned |
+| REST API | Retrieve findings and trigger authorized scans | Planned |
+| DynamoDB persistence | Store findings and scan metadata | Planned |
+| Terraform infrastructure | Reproducible infrastructure deployment | Planned |
+| Docker development environment | Consistent local development and testing | Planned |
+| GitHub Actions CI/CD | Automate tests and infrastructure validation | Planned |
+| Amazon Cognito authentication | Authenticate dashboard users | Planned |
+| Viewer and admin roles | Separate read and administrative actions | Planned |
+| Scheduled scans and notifications | Detect issues and alert users | Planned |
+| Dashboard with live updates | Visualize scan progress and findings | Future milestone |
+
+The initial version will prioritize the scanner, its tests and the API. Advanced features will be added only when the core workflow works reliably.
+
+---
+
+## 🔎 Security Checks
+
+The first version is intended to focus on a small number of high-value checks.
+
+| Service / Area | Proposed check | Why it matters |
+|---|---|---|
+| Amazon S3 | Public access protection | Helps prevent unintended public exposure |
+| Amazon S3 | Bucket policy enforces HTTPS | Helps protect data in transit |
+| Amazon EC2 / VPC | Sensitive ports exposed to `0.0.0.0/0` | May allow unwanted internet access |
+| AWS IAM | Excessively permissive policies | Reduces unnecessary permissions |
+| AWS IAM | Access-key age and rotation review | Helps identify credentials requiring review |
+| AWS CloudTrail | Audit trail configuration | Supports account activity monitoring |
+
+These checks are a proposed initial scope, not a claim of current scanner coverage. Each rule will need an implementation, test cases and documented permissions before being marked complete.
+
+### Example finding
+
+The following is an illustrative example of the intended output format, not a result from a live scan.
+
+```json
+{
+  "ruleId": "NET-001",
+  "resourceType": "AWS::EC2::SecurityGroup",
+  "severity": "HIGH",
+  "title": "SSH exposed to the internet",
+  "status": "OPEN",
+  "evidence": {
+    "port": 22,
+    "protocol": "tcp",
+    "source": "0.0.0.0/0"
+  },
+  "recommendation": "Restrict SSH access to approved source IPs."
+}
+```
+
+A finding should provide enough evidence for an engineer to understand the issue and decide what to do next.
+
+---
+
+## 🏗️ Architecture
+
+The following diagram represents the **proposed target architecture**. It is not a diagram of infrastructure already deployed.
 
 ```mermaid
-flowchart LR
-    USER["👤 User<br/>admin or viewer"] --> CF["CloudFront + S3<br/>Dashboard"]
-    USER -- "login" --> COG["Cognito<br/>JWT tokens"]
-    CF -- "REST + token" --> REST["API Gateway<br/>REST API"]
-    CF -- "live updates" --> WS["API Gateway<br/>WebSocket API"]
+flowchart TD
+    USER["User"]
+    UI["Dashboard<br/>S3 + CloudFront"]
+    AUTH["Amazon Cognito"]
+    REST["API Gateway<br/>REST API"]
+    API["AWS Lambda<br/>API Handler"]
+    QUEUE["Amazon SQS<br/>Scan Jobs"]
+    SCHEDULE["Amazon EventBridge<br/>Scheduled Scans"]
+    SCANNER["AWS Lambda<br/>Security Rules"]
+    TARGET["AWS Resources<br/>S3, IAM, EC2, VPC"]
+    DB[("Amazon DynamoDB")]
+    ALERT["Amazon SNS<br/>Notifications"]
+    LOGS["Amazon CloudWatch"]
+    TF["Terraform"]
+    CI["GitHub Actions"]
 
-    REST --> API["Lambda<br/>API handlers"]
-    API --> DDB[("DynamoDB<br/>findings + connections")]
-    API --> SQS["SQS<br/>scan jobs"]
-
-    EB["EventBridge<br/>schedule"] --> SQS
-    SQS --> SCAN["Lambda<br/>scanner rules"]
-    SCAN -- "read-only checks" --> AWS["AWS account<br/>S3, IAM, EC2, VPC"]
-    SCAN --> DDB
-    SCAN --> SF["Step Functions<br/>review workflow"]
-    SF --> SNS["SNS<br/>email alerts"]
-    SCAN -- "push result" --> WS
-
-    CW["CloudWatch<br/>logs and alarms"] -.-> SCAN
-    CW -.-> API
+    USER --> UI
+    USER --> AUTH
+    UI --> REST
+    AUTH -. "Authentication" .-> REST
+    REST --> API
+    API --> DB
+    API --> QUEUE
+    SCHEDULE --> QUEUE
+    QUEUE --> SCANNER
+    SCANNER --> TARGET
+    SCANNER --> DB
+    SCANNER -. "High-severity findings" .-> ALERT
+    API -.-> LOGS
+    SCANNER -.-> LOGS
+    TF -. "Provisions infrastructure" .-> API
+    CI -. "Validates and deploys" .-> TF
 ```
+
+### Architecture components
+
+| Component | Responsibility |
+|---|---|
+| Amazon API Gateway | Expose controlled API endpoints |
+| AWS Lambda | Handle API requests and execute security checks |
+| Amazon SQS | Queue scan jobs for asynchronous processing |
+| Amazon EventBridge | Trigger scheduled scans |
+| Amazon DynamoDB | Store findings and scan metadata |
+| Amazon Cognito | Authenticate users in a later milestone |
+| Amazon SNS | Deliver configured security notifications |
+| Amazon CloudWatch | Centralize logs and operational monitoring |
+| Amazon S3 and CloudFront | Host the proposed dashboard |
+| Terraform | Define and provision AWS infrastructure |
+| GitHub Actions | Automate testing and deployment workflows |
+| Docker | Provide a consistent local development environment |
+
+**Architecture principle:** build and verify the essential scan workflow first. Add queuing, authentication and real-time updates when the simpler version is stable.
 
 ---
 
-## 🛠️ Tech Stack
+## 🧰 Technology Stack
 
-| Area | Tool |
+| Category | Technology |
 |---|---|
-| Compute | AWS Lambda (Python) |
-| APIs | API Gateway (REST and WebSocket) |
-| Data | DynamoDB |
-| Auth | Amazon Cognito (JWT) |
-| Messaging | SQS, SNS, EventBridge, Step Functions |
-| Frontend hosting | S3 and CloudFront |
-| Monitoring | CloudWatch |
+| Programming language | JavaScript / Node.js |
+| Cloud provider | Amazon Web Services |
+| AWS SDK | AWS SDK for JavaScript v3 |
+| Serverless compute | AWS Lambda |
+| API layer | Amazon API Gateway |
+| Storage | Amazon DynamoDB |
+| Messaging and scheduling | Amazon SQS, EventBridge and SNS |
+| Authentication | Amazon Cognito |
+| Monitoring | Amazon CloudWatch |
 | Infrastructure as Code | Terraform |
-| Containers | Docker, Docker Compose |
-| CI/CD | GitHub Actions (OIDC login, no stored AWS keys) |
-| Security tooling | Trivy, Terraform security checks, secret scanning |
+| Containerization | Docker |
+| CI/CD | GitHub Actions |
+| Dashboard hosting | Amazon S3 and CloudFront |
+
+The application is intended to use Node.js, including for Lambda functions. **Python is not part of the planned application stack.**
+
+Some services may be introduced only after the initial MVP is complete.
 
 ---
 
-## 🔒 Security Checks
+## ⚙️ How It Will Work
 
-CloudGuard starts with checks for common AWS misconfigurations. Each check is one rule with a severity and a fix suggestion.
+The intended end-to-end workflow is:
 
-| Area | Check |
-|---|---|
-| **S3** | Block Public Access is enabled |
-| **S3** | Bucket policy enforces HTTPS |
-| **Network** | Security groups do not allow `0.0.0.0/0` on sensitive ports (SSH, RDP, databases) |
-| **Network** | Subnets do not auto-assign public IPs without a reason |
-| **IAM** | Access keys are rotated within 90 days |
-| **IAM** | Policies are attached to groups or roles, not directly to users |
-| **IAM** | No wildcard (`*`) admin policies on users |
-| **Account** | Root account has no active access keys |
-| **Logging** | A CloudTrail trail is enabled |
+1. **Initiate a scan:** An authorized user or scheduled event starts a scan.
+2. **Execute security rules:** The scanner queries supported AWS configuration APIs.
+3. **Evaluate configurations:** Each rule compares observed settings with its defined criteria.
+4. **Generate findings:** Failed checks produce structured findings with evidence and severity.
+5. **Persist results:** Scan metadata and findings are saved for retrieval and review.
+6. **Notify when appropriate:** Configured alerts can notify users about selected high-severity findings.
+7. **Review remediation:** An engineer investigates the recommendation and approves any required change.
+8. **Verify the result:** A subsequent scan checks whether the original condition remains.
 
-> The list grows as new rules are added. Rules marked in the [Roadmap](#-roadmap) are the ones implemented so far.
+The scanner is intended to be read-only. It should not automatically modify production resources as part of the initial release.
 
 ---
 
-## 🔌 API Design
+## 🔐 Security by Design
 
-**REST API** (planned endpoints, all require a valid token)
+Security is a core design requirement, not an optional enhancement.
 
-| Method | Path | Role | What it does |
-|---|---|---|---|
-| `GET` | `/findings` | viewer, admin | List findings, filter by severity |
-| `GET` | `/findings/{id}` | viewer, admin | Details and fix suggestion |
-| `POST` | `/scans` | admin | Start a scan now |
-| `GET` | `/scans/{id}` | viewer, admin | Scan status |
-| `POST` | `/findings/{id}/resolve` | admin | Approve or mark a finding resolved |
-| `GET` | `/score` | viewer, admin | Current security score |
+- **Least privilege:** Grant each component only the permissions it needs.
+- **Read-only scanning:** Separate scanning permissions from infrastructure deployment permissions.
+- **No hard-coded credentials:** Never commit AWS access keys, tokens or other secrets.
+- **OIDC for CI/CD:** Prefer GitHub Actions OpenID Connect federation over long-lived AWS access keys.
+- **Protected APIs:** Require authentication and authorization for protected operations when authentication is introduced.
+- **Input validation:** Validate API inputs and reject invalid scan requests.
+- **Auditability:** Record operational events and errors without logging secrets.
+- **Approval before remediation:** Present proposed changes for human review rather than automatically applying them.
+- **Safe infrastructure changes:** Review Terraform plans before applying them to a real AWS account.
 
-**WebSocket API** (planned events)
-
-| Event | When it is sent |
-|---|---|
-| `scan.started` | A scan begins |
-| `finding.created` | A new finding is stored |
-| `scan.completed` | A scan finishes, with a summary |
+Security controls must be implemented and tested before being described as active protections.
 
 ---
 
-## 🔑 Authentication and Roles
+## 📁 Project Structure
 
-- Users sign in through **Amazon Cognito** and receive a JWT token.
-- The REST API verifies the token on every request.
-- The WebSocket connection is checked when it opens.
-- Cognito **groups** decide what a user may do:
+The following is the proposed repository structure as development progresses.
 
-| Role | Can do |
-|---|---|
-| `viewer` | Read findings, scans and the score |
-| `admin` | Everything a viewer can, plus start scans and approve fixes |
-
-- Each Lambda function has its own **least-privilege IAM role**.
-- The scanner uses **read-only** permissions.
-- GitHub Actions deploys through **OIDC**, so no AWS access keys are stored in the repository.
-
----
-
-## 📂 Planned Folder Structure
-
-```
+```text
 cloudguard-aws/
-├── app/                 # Lambda code: API handlers and scanner rules
+├── app/
 │   ├── api/
+│   │   └── handlers/
 │   ├── scanner/
-│   │   └── rules/       # one file per security check
-│   └── tests/
-├── frontend/            # Dashboard
-├── terraform/           # Infrastructure (modules, dev and prod)
-├── docker/              # Local development setup
-├── .github/workflows/   # CI/CD pipelines
-├── docs/                # Architecture, design decisions, runbook, API spec
-├── screenshots/
+│   │   ├── engine.js
+│   │   └── rules/
+│   ├── services/
+│   └── utils/
+├── tests/
+│   ├── unit/
+│   └── fixtures/
+├── frontend/
+├── terraform/
+│   ├── modules/
+│   └── environments/
+│       ├── dev/
+│       └── prod/
+├── docker/
+├── docs/
+├── .github/
+│   └── workflows/
+├── .gitignore
+├── package.json
 └── README.md
 ```
 
+Files and directories will be introduced as they become necessary. The structure is a design proposal and does not imply that these files currently exist.
+
 ---
 
-## 🗺️ Roadmap
+## 🗺️ Development Roadmap
 
-**Week 1: Foundation**
-- [ ] AWS free tier checked, budget alert set
-- [ ] Repository created, project structure added
-- [ ] Local app running with Docker Compose
+The project will be developed incrementally, with working deliverables at each stage.
 
-**Week 2: Backend**
-- [ ] Terraform: DynamoDB, Lambda, REST API
-- [ ] First scanner rules (S3 and security groups)
-- [ ] Findings stored and returned by the API
+### Phase 1 — Foundation
 
-**Week 3: Security and real time**
-- [ ] IAM rules (keys, policies, root account)
-- [ ] Cognito login with `admin` and `viewer` roles
-- [ ] WebSocket live updates
+- [ ] Finalize the Node.js project structure.
+- [ ] Define the finding data model.
+- [ ] Create sample AWS configuration fixtures.
+- [ ] Implement the first security rule.
+- [ ] Add unit tests for safe and unsafe configurations.
 
-**Week 4: Delivery**
-- [ ] CI/CD with GitHub Actions (test, scan, plan, deploy)
-- [ ] Dashboard
-- [ ] CloudWatch dashboard and alarms
+**Milestone:** a local security checker that produces a verified finding.
 
-**Week 5 and 6: Quality layer**
-- [ ] Unit tests for every rule, with a coverage badge
-- [ ] Reliability: retries, dead-letter queue, safe re-runs
-- [ ] Multi-account scanning
-- [ ] Design notes, runbook and API spec
-- [ ] Demo video and screenshots
+### Phase 2 — AWS integration
+
+- [ ] Connect the scanner to AWS using the SDK for JavaScript.
+- [ ] Implement initial S3 and security-group checks.
+- [ ] Configure dedicated read-only permissions.
+- [ ] Handle API errors and missing permissions.
+- [ ] Validate results against a controlled test environment.
+
+**Milestone:** the scanner can inspect selected real AWS configurations safely.
+
+### Phase 3 — Serverless backend
+
+- [ ] Define the infrastructure with Terraform.
+- [ ] Deploy the Lambda scanner and REST API.
+- [ ] Store findings in DynamoDB.
+- [ ] Add structured logs and error handling.
+- [ ] Document deployment and cleanup procedures.
+
+**Milestone:** scan findings can be retrieved through a deployed API.
+
+### Phase 4 — Delivery and reliability
+
+- [ ] Add GitHub Actions for tests and code validation.
+- [ ] Validate Terraform formatting and configuration.
+- [ ] Add dependency and infrastructure security checks.
+- [ ] Build a basic dashboard.
+- [ ] Add scan history and severity filtering.
+
+**Milestone:** a reproducible application with an automated validation workflow.
+
+### Phase 5 — Advanced capabilities
+
+- [ ] Add Cognito authentication and role-based authorization.
+- [ ] Add scheduled scans through EventBridge.
+- [ ] Add SQS-based asynchronous scan execution where needed.
+- [ ] Configure SNS notifications.
+- [ ] Add live dashboard updates if justified.
+- [ ] Improve coverage, documentation and demo quality.
+
+**Milestone:** a more complete cloud security assessment application.
 
 ---
 
 ## 🚀 Getting Started
 
-Setup instructions will be added once the first working version is deployed.
+> Setup instructions will be finalized after the first working implementation is committed. The commands below prepare the development environment; they do not currently deploy CloudGuard.
+
+### Prerequisites
+
+- Git
+- Node.js LTS and npm
+- Visual Studio Code or another code editor
+- AWS CLI for AWS integration
+- An AWS account for live scanning and deployment
+- Terraform for infrastructure deployment
+- Docker for container-based development and testing
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/subhajitajodhya-dotcom/cloudguard-aws.git
+cd cloudguard-aws
+```
+
+### 2. Check your development tools
+
+```bash
+node --version
+npm --version
+git --version
+terraform version
+docker --version
+```
+
+Install the tools that are missing. Terraform and Docker will be needed when their respective development stages begin.
+
+### 3. Configure AWS securely
+
+Use an approved local AWS profile or another supported credential provider. Avoid using the AWS root user for development.
+
+```bash
+aws configure --profile cloudguard-dev
+aws sts get-caller-identity --profile cloudguard-dev
+```
+
+The configuration command prompts for credentials. Do not place real credentials in source files or commit them to GitHub. Use a dedicated, appropriately restricted identity for scanning.
+
+### 4. Run the application
+
+The application-specific installation and run commands will be added once the Node.js entry point, dependencies and scripts have been implemented and tested.
+
+---
+
+## 🧪 Testing Strategy
+
+Testing will validate individual rules as well as the complete scan workflow.
+
+| Test level | Objective |
+|---|---|
+| Unit tests | Verify each security rule against safe and unsafe fixtures |
+| Integration tests | Validate interactions between the scanner and AWS APIs |
+| API tests | Verify request validation, authorization and responses |
+| Infrastructure validation | Check Terraform formatting and configuration |
+| CI/CD checks | Run automated tests before changes are merged or deployed |
+| End-to-end tests | Confirm the scan-to-finding workflow in a controlled environment |
+
+The project will not claim test coverage percentages, deployment success or security guarantees without corresponding evidence.
+
+---
+
+## 💰 Cost and Cleanup
+
+CloudGuard is intended as a learning and portfolio project, with cost-conscious infrastructure choices.
+
+AWS services may incur charges depending on usage, region, configuration and account eligibility. Before deploying:
+
+- Configure an AWS Budget and billing alerts.
+- Review the estimated cost of each service.
+- Avoid unnecessary always-on resources.
+- Use a development environment for testing.
+- Inspect Terraform plans before deployment.
+- Destroy temporary infrastructure when it is no longer needed.
+
+When resources have been deployed through Terraform, review the active workspace and configuration before running:
+
+```bash
+terraform plan -destroy
+terraform destroy
+```
+
+Run these commands only from the correct Terraform environment. They can delete infrastructure and associated resources.
+
+Deleting infrastructure does not necessarily delete every external resource, log, stored object or outstanding charge, so verify cleanup separately.
+
+---
+
+## ⚠️ Limitations
+
+CloudGuard is intended to be a focused security assessment tool, not a replacement for a complete cloud security platform.
+
+- Its coverage will be limited to implemented and tested rules.
+- Findings depend on the permissions and resources available to the scanner.
+- A successful check does not prove that an AWS account is completely secure.
+- Severity labels are project-defined classifications, not guarantees of actual business impact.
+- Remediation recommendations require review against the target environment.
+- Multi-account scanning, automated remediation and advanced analytics are not part of the initial MVP.
+
+These boundaries will be updated as the implementation evolves.
 
 ---
 
 ## 🔗 Related Project
 
-[**Cloud Cost Optimization on AWS**](https://github.com/subhajitajodhya-dotcom/cloud-cost-optimization-aws): Terraform, Docker, Prometheus, Grafana and PowerShell automation to monitor and reduce AWS cost.
+### AWS Cloud Cost Optimization
 
-CloudGuard complements it: that project optimizes cost and monitors infrastructure, and CloudGuard secures it.
+[View the Cloud Cost Optimization project](https://github.com/subhajitajodhya-dotcom/cloud-cost-optimization-aws)
+
+The two projects have complementary goals:
+
+| Project | Primary focus |
+|---|---|
+| AWS Cloud Cost Optimization | Identify opportunities to understand and reduce cloud spending |
+| CloudGuard AWS | Identify selected cloud security misconfigurations |
+
+Together, they are intended to demonstrate practical skills across AWS operations, infrastructure automation, monitoring and cloud security.
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 About the Developer
 
 **Subhajit Dey**
 
-[![GitHub](https://img.shields.io/badge/GitHub-subhajitajodhya--dotcom-181717?style=for-the-badge&logo=github)](https://github.com/subhajitajodhya-dotcom)
+Computer Science student focused on developing practical skills in AWS cloud engineering, infrastructure as code, automation and DevOps.
+
+CloudGuard AWS is being developed as a hands-on learning project to explore how serverless systems, security rules, infrastructure automation and testing work together.
+
+- GitHub: [@subhajitajodhya-dotcom](https://github.com/subhajitajodhya-dotcom)
+- Project: [CloudGuard AWS](https://github.com/subhajitajodhya-dotcom/cloudguard-aws)
 
 ---
 
-<div align="center">
+## 📜 License
 
-⭐ *Built step by step with curiosity and hands-on practice.*
+A license has not yet been specified. Licensing information will be added when a license is selected and included in the repository.
 
-</div>
+---
+
+*Built incrementally. Tested deliberately. Designed with security in mind.*
