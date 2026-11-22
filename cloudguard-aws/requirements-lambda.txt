@@ -1,0 +1,2 @@
+# boto3 is already inside the Lambda runtime. Only extra libraries go here.
+PyJWT[crypto]==2.9.0

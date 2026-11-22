@@ -1,0 +1,5 @@
+-r requirements.txt
+pytest>=8
+moto[all]>=5.0
+cryptography>=42
+ruff>=0.5
