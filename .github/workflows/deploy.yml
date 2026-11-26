@@ -1,0 +1,40 @@
+name: Deploy
+# Runs after CI passes on main. No AWS keys are stored in GitHub:
+# the job swaps a short-lived GitHub token for AWS credentials (OIDC).
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["app/**", "terraform/**", "frontend/**", "requirements-lambda.txt"]
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency: deploy-dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: dev          # add a required reviewer in GitHub to make this a manual approval
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python scripts/package.py
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform init
+        working-directory: terraform
+        run: terraform init -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+      - name: Terraform plan
+        env:
+          TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }}
+        working-directory: terraform
+        run: terraform plan -var-file=envs/dev.tfvars -out=tfplan -input=false
+      - name: Terraform apply
+        working-directory: terraform
+        run: terraform apply -input=false tfplan

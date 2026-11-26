@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CloudGuard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="brand"><span class="logo" aria-hidden="true">&#9737;</span> CloudGuard <small>AWS security posture</small></div>
+  <div id="who" class="who" hidden>
+    <span id="user"></span><span id="role" class="pill"></span>
+    <span id="live" class="live off" title="Live updates">&#9679; offline</span>
+    <button id="logout" class="ghost">Sign out</button>
+  </div>
+</header>
+
+<main>
+  <section id="login" class="card narrow">
+    <h1>Sign in</h1>
+    <form id="login-form">
+      <label>Email <input id="email" type="email" autocomplete="username" required></label>
+      <label>Password <input id="password" type="password" autocomplete="current-password" required></label>
+      <button type="submit">Sign in</button>
+      <p id="login-error" class="error" role="alert"></p>
+    </form>
+  </section>
+
+  <div id="app" hidden>
+    <section class="top">
+      <div class="card score">
+        <div class="label">Security score</div>
+        <div id="score" class="big">&ndash;</div>
+        <div id="score-sub" class="muted"></div>
+      </div>
+      <div class="card sev" id="sev"></div>
+      <div class="card actions">
+        <button id="scan" disabled>Scan now</button>
+        <p id="scan-status" class="muted" aria-live="polite"></p>
+        <p id="scan-hint" class="muted small"></p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <h2>Findings</h2>
+        <div class="filters">
+          <select id="f-status" aria-label="Status">
+            <option value="open">Open</option><option value="">All</option>
+            <option value="resolved">Resolved</option><option value="fixed">Fixed</option>
+          </select>
+          <select id="f-sev" aria-label="Severity">
+            <option value="">All severities</option><option>CRITICAL</option><option>HIGH</option>
+            <option>MEDIUM</option><option>LOW</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Severity</th><th>Rule</th><th>Resource</th><th>Status</th><th></th></tr></thead>
+          <tbody id="findings"></tbody>
+        </table>
+      </div>
+      <p id="empty" class="muted" hidden>No findings. Run a scan to check your account.</p>
+    </section>
+
+    <div class="grid2">
+      <section class="card">
+        <h2>Live feed</h2>
+        <ul id="feed" class="feed"></ul>
+      </section>
+      <section class="card">
+        <h2>Recent scans</h2>
+        <ul id="scans" class="feed"></ul>
+      </section>
+    </div>
+  </div>
+</main>
+
+<dialog id="detail">
+  <article>
+    <h3 id="d-title"></h3>
+    <p id="d-desc"></p>
+    <h4>How to fix</h4>
+    <p id="d-fix"></p>
+    <p class="muted small" id="d-meta"></p>
+    <label id="d-note-wrap">Note <input id="d-note" maxlength="500" placeholder="Why is this accepted?"></label>
+    <div class="row">
+      <button id="d-resolve" class="ghost">Mark as resolved</button>
+      <button id="d-close">Close</button>
+    </div>
+  </article>
+</dialog>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

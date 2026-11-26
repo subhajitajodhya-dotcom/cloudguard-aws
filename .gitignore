@@ -1,0 +1,21 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!envs/*.tfvars
+crash.log
+tfplan
+# Build output
+build/
+*.zip
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.venv/
+# Secrets - never commit
+.env
+*.pem
+*.key
+credentials
+frontend/config.js.local
