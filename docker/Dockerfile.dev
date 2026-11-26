@@ -4,4 +4,6 @@ WORKDIR /work
 COPY requirements.txt requirements-dev.txt ./
 RUN pip install --no-cache-dir -r requirements-dev.txt
 COPY . .
+RUN useradd --create-home app && chown -R app /work
+USER app
 CMD ["pytest", "-q"]

@@ -1,0 +1,10 @@
+# Reviewed and accepted for this demo project. Reasons are in docs/DECISIONS.md.
+
+# S3 buckets use AES256 (SSE-S3). A customer managed KMS key costs extra and needs extra CloudFront key policy.
+AWS-0132
+
+# SNS topic is unencrypted. CloudWatch alarms cannot publish to a topic that uses the AWS managed key.
+AWS-0095
+
+# No WAF in front of CloudFront. WAF is a paid service and is listed as a known gap.
+AWS-0011
