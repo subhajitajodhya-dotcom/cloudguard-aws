@@ -19,3 +19,5 @@ __pycache__/
 *.key
 credentials
 frontend/config.js.local
+
+!terraform/envs/*.tfvars

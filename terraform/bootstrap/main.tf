@@ -1,7 +1,3 @@
-# Run this ONCE, from your own PC, before the main stack.
-# It creates: (1) a private S3 bucket for Terraform state, and
-#             (2) a role GitHub Actions can assume WITHOUT any stored AWS keys (OIDC).
-
 terraform {
   required_version = ">= 1.6"
   required_providers {
@@ -102,6 +98,9 @@ data "aws_iam_policy_document" "github_trust" {
         "repo:${var.github_repo}:ref:refs/heads/main",
         "repo:${var.github_repo}:pull_request",
         "repo:${var.github_repo}:environment:dev",
+        "repo:subhajitajodhya-dotcom@*/cloudguard-aws@*:ref:refs/heads/main",
+        "repo:subhajitajodhya-dotcom@*/cloudguard-aws@*:pull_request",
+        "repo:subhajitajodhya-dotcom@*/cloudguard-aws@*:environment:dev",
       ]
     }
   }
